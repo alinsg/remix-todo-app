@@ -7,9 +7,17 @@ import {
   Input,
   Stack,
 } from "@chakra-ui/react"
-import { Form, ActionFunction, useActionData, Link } from "remix"
+import {
+  Form,
+  ActionFunction,
+  useActionData,
+  Link,
+  LoaderFunction,
+} from "remix"
+import { badRequest } from "~/utils/authUtils.server"
 import Card from "~/components/auth/AuthCard"
 import DividerWithText from "~/components/auth/DividerWithText"
+import { createUserSession, login } from "~/utils/session.server"
 
 function validateUsername(username?: string) {
   const USERNAME_LENGTH = 3
@@ -40,14 +48,27 @@ export const action: ActionFunction = async ({
     return { formError: `Form not submitted correctly` }
   }
 
+  const fields = { username, password }
+
   const fieldErrors = {
     username: validateUsername(username),
     password: validatePassword(password),
   }
 
-  const fields = { username, password }
+  if (Object.values(fieldErrors).some(Boolean)) {
+    return badRequest({ fields, fieldErrors })
+  }
 
-  return { fields, fieldErrors }
+  const user = await login({ username, password })
+
+  if (!user) {
+    return {
+      fields,
+      formError: "Username and password combination is incorrect",
+    }
+  }
+
+  return createUserSession(user.id, "/")
 }
 
 function Login() {
@@ -68,7 +89,9 @@ function Login() {
               id="username"
               isInvalid={actionData?.fieldErrors?.username !== undefined}
             >
-              <FormLabel htmlFor="username">Username</FormLabel>
+              <FormLabel htmlFor="username" textAlign="center">
+                Username
+              </FormLabel>
               <Input name="username" type="text" />
               <FormHelperText>
                 {actionData?.fieldErrors?.username &&
@@ -79,7 +102,9 @@ function Login() {
               id="password"
               isInvalid={actionData?.fieldErrors?.password !== undefined}
             >
-              <FormLabel htmlFor="password">Password</FormLabel>
+              <FormLabel htmlFor="password" textAlign="center">
+                Password
+              </FormLabel>
               <Input name="password" type="password" />
               <FormHelperText>
                 {actionData?.fieldErrors?.password &&

@@ -16,7 +16,7 @@ model User {
   username String  @unique
   passwordHash String
   firstName String
-  lastName String
+  lastName String?
   todos Todo[]
 }
 
