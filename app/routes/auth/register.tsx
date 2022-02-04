@@ -10,11 +10,21 @@ import {
 import { Form, ActionFunction, useActionData, Link } from "remix"
 import Card from "~/components/auth/AuthCard"
 import DividerWithText from "~/components/auth/DividerWithText"
+import { registerBadRequest } from "~/utils/authUtils.server"
+import { db } from "~/utils/db.server"
+import { createUserSession, register } from "~/utils/session.server"
 
 function validateUsername(username?: string) {
   const USERNAME_LENGTH = 3
   if (typeof username !== "string" || username.length < USERNAME_LENGTH) {
     return `Usernames must be at least ${USERNAME_LENGTH} characters long`
+  }
+}
+
+function validateName(firstName?: string) {
+  const FIRST_NAME_LENGTH = 1
+  if (typeof firstName !== "string" || firstName.length <= FIRST_NAME_LENGTH) {
+    return `First name must have at least one character`
   }
 }
 
@@ -35,10 +45,17 @@ function validateRepeatPassword(password?: string, passwordRepeat?: string) {
 
 type ActionData = {
   formError?: string
-  fields?: { username: string; password: string; passwordRepeat: string }
+  fields?: {
+    username: string
+    firstName: string
+    lastName: string
+    password: string
+    passwordRepeat: string
+  }
   fieldErrors?: {
     username?: string
     password?: string
+    firstName?: string
     passwordRepeat?: string
   }
 }
@@ -46,27 +63,56 @@ type ActionData = {
 export const action: ActionFunction = async ({
   request,
 }): Promise<Response | ActionData> => {
-  const { username, password, passwordRepeat } = Object.fromEntries(
-    await request.formData()
-  )
+  const { username, firstName, lastName, password, passwordRepeat } =
+    Object.fromEntries(await request.formData())
 
   if (
     typeof username !== "string" ||
+    typeof firstName !== "string" ||
+    typeof lastName !== "string" ||
     typeof password !== "string" ||
     typeof passwordRepeat !== "string"
   ) {
     return { formError: `Form not submitted correctly` }
   }
 
+  const fields = { username, firstName, lastName, password, passwordRepeat }
+
   const fieldErrors = {
     username: validateUsername(username),
     password: validatePassword(password),
+    firstName: validateName(firstName),
+    lastName: validateName(lastName),
     passwordRepeat: validateRepeatPassword(password, passwordRepeat),
   }
 
-  const fields = { username, password, passwordRepeat }
+  if (Object.values(fieldErrors).some(Boolean)) {
+    registerBadRequest({ fields, fieldErrors })
+  }
 
-  return { fields, fieldErrors }
+  const userExists = await db.user.findFirst({
+    where: {
+      username,
+    },
+  })
+
+  if (userExists) {
+    return registerBadRequest({
+      fields,
+      fieldErrors: { username: `User ${username} already exists` },
+    })
+  }
+
+  const user = await register({ username, password, firstName, lastName })
+
+  if (!user) {
+    return {
+      fields,
+      formError: `Something went wrong when creating the account`,
+    }
+  }
+
+  return createUserSession(user.id, "/")
 }
 
 function Register() {
@@ -93,6 +139,21 @@ function Register() {
                 {actionData?.fieldErrors?.username &&
                   actionData?.fieldErrors?.username}
               </FormHelperText>
+            </FormControl>
+            <FormControl
+              id="firstName"
+              isInvalid={actionData?.fieldErrors?.firstName !== undefined}
+            >
+              <FormLabel htmlFor="firstName">First name</FormLabel>
+              <Input name="firstName" type="text" />
+              <FormHelperText>
+                {actionData?.fieldErrors?.firstName &&
+                  actionData?.fieldErrors?.firstName}
+              </FormHelperText>
+            </FormControl>
+            <FormControl id="lastName">
+              <FormLabel htmlFor="lastName">Last name</FormLabel>
+              <Input name="lastName" type="text" />
             </FormControl>
             <FormControl
               id="password"

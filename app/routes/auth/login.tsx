@@ -14,7 +14,7 @@ import {
   Link,
   LoaderFunction,
 } from "remix"
-import { badRequest } from "~/utils/authUtils.server"
+import { loginBadRequest } from "~/utils/authUtils.server"
 import Card from "~/components/auth/AuthCard"
 import DividerWithText from "~/components/auth/DividerWithText"
 import { createUserSession, login } from "~/utils/session.server"
@@ -56,7 +56,7 @@ export const action: ActionFunction = async ({
   }
 
   if (Object.values(fieldErrors).some(Boolean)) {
-    return badRequest({ fields, fieldErrors })
+    return loginBadRequest({ fields, fieldErrors })
   }
 
   const user = await login({ username, password })

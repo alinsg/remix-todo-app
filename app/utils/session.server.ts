@@ -10,20 +10,23 @@ type LoginForm = {
 type RegisterForm = {
   username: string
   password: string
-  details: {
-    firstName: string
-    lastName?: string
-  }
+  firstName: string
+  lastName?: string
 }
 
-export async function register({ username, password, details }: RegisterForm) {
+export async function register({
+  username,
+  password,
+  firstName,
+  lastName,
+}: RegisterForm) {
   const passwordHash = await bcrypt.hash(password, 10)
   return db.user.create({
     data: {
       username,
       passwordHash,
-      firstName: details.firstName,
-      lastName: details.lastName,
+      firstName,
+      lastName,
     },
   })
 }
