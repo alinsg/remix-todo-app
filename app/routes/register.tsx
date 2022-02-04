@@ -134,7 +134,9 @@ function Register() {
               id="username"
               isInvalid={actionData?.fieldErrors?.username !== undefined}
             >
-              <FormLabel htmlFor="username">Username</FormLabel>
+              <FormLabel htmlFor="username" textAlign="center">
+                Username
+              </FormLabel>
               <Input name="username" type="text" />
               <FormHelperText>
                 {actionData?.fieldErrors?.username &&
@@ -145,7 +147,9 @@ function Register() {
               id="firstName"
               isInvalid={actionData?.fieldErrors?.firstName !== undefined}
             >
-              <FormLabel htmlFor="firstName">First name</FormLabel>
+              <FormLabel htmlFor="firstName" textAlign="center">
+                First name
+              </FormLabel>
               <Input name="firstName" type="text" />
               <FormHelperText>
                 {actionData?.fieldErrors?.firstName &&
@@ -156,7 +160,9 @@ function Register() {
               id="lastName"
               isInvalid={actionData?.fieldErrors?.lastName !== undefined}
             >
-              <FormLabel htmlFor="lastName">Last name</FormLabel>
+              <FormLabel htmlFor="lastName" textAlign="center">
+                Last name
+              </FormLabel>
               <Input name="lastName" type="text" />
               <FormHelperText>
                 {actionData?.fieldErrors?.lastName &&
@@ -167,7 +173,9 @@ function Register() {
               id="password"
               isInvalid={actionData?.fieldErrors?.password !== undefined}
             >
-              <FormLabel htmlFor="password">Password</FormLabel>
+              <FormLabel htmlFor="password" textAlign="center">
+                Password
+              </FormLabel>
               <Input name="password" type="password" />
               <FormHelperText>
                 {actionData?.fieldErrors?.password &&
@@ -178,7 +186,9 @@ function Register() {
               id="passwordRepeat"
               isInvalid={actionData?.fieldErrors?.passwordRepeat !== undefined}
             >
-              <FormLabel htmlFor="passwordRepeat">Repeat password</FormLabel>
+              <FormLabel htmlFor="passwordRepeat" textAlign="center">
+                Repeat password
+              </FormLabel>
               <Input name="passwordRepeat" type="password" />
               <FormHelperText>
                 {actionData?.fieldErrors?.passwordRepeat &&
