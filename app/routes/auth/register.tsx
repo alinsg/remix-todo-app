@@ -14,28 +14,28 @@ import { registerBadRequest } from "~/utils/authUtils.server"
 import { db } from "~/utils/db.server"
 import { createUserSession, register } from "~/utils/session.server"
 
-function validateUsername(username?: string) {
+function validateUsername(username: string) {
   const USERNAME_LENGTH = 3
-  if (typeof username !== "string" || username.length < USERNAME_LENGTH) {
+  if (username.length < USERNAME_LENGTH) {
     return `Usernames must be at least ${USERNAME_LENGTH} characters long`
   }
 }
 
-function validateName(firstName?: string) {
-  const FIRST_NAME_LENGTH = 1
-  if (typeof firstName !== "string" || firstName.length <= FIRST_NAME_LENGTH) {
-    return `First name must have at least one character`
+function validateName(name: string) {
+  const NAME_LENGTH = 1
+  if (name.length <= NAME_LENGTH) {
+    return `Your name must have at least one character`
   }
 }
 
-function validatePassword(password?: string) {
+function validatePassword(password: string) {
   const PASSWORD_LENGTH = 5
-  if (typeof password !== "string" || password.length < PASSWORD_LENGTH) {
+  if (password.length < PASSWORD_LENGTH) {
     return `Password must be at least ${PASSWORD_LENGTH} characters long`
   }
 }
 
-function validateRepeatPassword(password?: string, passwordRepeat?: string) {
+function validateRepeatPassword(password: string, passwordRepeat: string) {
   if (passwordRepeat !== password) {
     return `The passwords do not match`
   }
@@ -56,6 +56,7 @@ type ActionData = {
     username?: string
     password?: string
     firstName?: string
+    lastName?: string
     passwordRepeat?: string
   }
 }
@@ -86,8 +87,8 @@ export const action: ActionFunction = async ({
     passwordRepeat: validateRepeatPassword(password, passwordRepeat),
   }
 
-  if (Object.values(fieldErrors).some(Boolean)) {
-    registerBadRequest({ fields, fieldErrors })
+  if (Object.values(fieldErrors).some((error) => error)) {
+    return registerBadRequest({ fields, fieldErrors })
   }
 
   const userExists = await db.user.findFirst({
@@ -151,9 +152,16 @@ function Register() {
                   actionData?.fieldErrors?.firstName}
               </FormHelperText>
             </FormControl>
-            <FormControl id="lastName">
+            <FormControl
+              id="lastName"
+              isInvalid={actionData?.fieldErrors?.lastName !== undefined}
+            >
               <FormLabel htmlFor="lastName">Last name</FormLabel>
               <Input name="lastName" type="text" />
+              <FormHelperText>
+                {actionData?.fieldErrors?.lastName &&
+                  actionData?.fieldErrors?.lastName}
+              </FormHelperText>
             </FormControl>
             <FormControl
               id="password"
