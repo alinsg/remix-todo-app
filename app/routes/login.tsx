@@ -115,7 +115,7 @@ function Login() {
               Sign in
             </Button>
             <DividerWithText>Don't have an account?</DividerWithText>
-            <Link to="/auth/register">
+            <Link to="/register">
               <Button colorScheme="gray" size="lg" fontSize="md" width="100%">
                 Register
               </Button>

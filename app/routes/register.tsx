@@ -189,7 +189,7 @@ function Register() {
               Register
             </Button>
             <DividerWithText>Already have an account?</DividerWithText>
-            <Link to="/auth/login">
+            <Link to="/login">
               <Button colorScheme="gray" size="lg" fontSize="md" width="100%">
                 Login
               </Button>

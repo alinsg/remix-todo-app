@@ -14,6 +14,7 @@ type RegisterForm = {
   lastName: string
 }
 
+// Register user
 export async function register({
   username,
   password,
@@ -82,7 +83,7 @@ export async function requireUserId(request: Request) {
   const userId = session.get("userId")
 
   if (!userId || typeof userId !== "string") {
-    throw redirect("/auth/login")
+    throw redirect("/login")
   }
 
   return userId
@@ -91,7 +92,7 @@ export async function requireUserId(request: Request) {
 // Logout user
 export async function logout(request: Request) {
   const session = await getSession(request.headers.get("Cookie"))
-  return redirect("/auth/login", {
+  return redirect("/login", {
     headers: { "Set-Cookie": await destroySession(session) },
   })
 }
